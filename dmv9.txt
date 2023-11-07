@@ -1,0 +1,34 @@
+d9 = pd.read_csv('Assignment 9/tele_com.csv')
+d9.head()
+d9.isna().sum()
+d9.shape
+d9.dropna(inplace=True)
+d9.duplicated().sum()
+d9.dtypes
+up = np.quantile(d9['TotalCharges'], 0.75)
+dn = np.quantile(d9['TotalCharges'], 0.25)
+
+d91 = d9[ (d9['TotalCharges'] < dn) | (d9['TotalCharges'] > up) ]
+d91
+# outliers index
+ol_ind = d91.index
+# droped outliers indexes
+d9.drop(ol_ind, inplace=True)
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+s = StandardScaler()
+le = LabelEncoder()
+d9.head()
+d9.columns
+d9[[ 'gender', 'Partner', 'Dependents', 'PhoneService', 'MultipleLines', 'InternetService',
+       'OnlineSecurity', 'OnlineBackup', 'DeviceProtection', 'TechSupport',
+       'StreamingTV', 'StreamingMovies', 'Contract', 'PaperlessBilling',
+       'PaymentMethod', 'Churn']] = d9[[ 'gender', 'Partner', 'Dependents', 'PhoneService', 'MultipleLines', 'InternetService',
+       'OnlineSecurity', 'OnlineBackup', 'DeviceProtection', 'TechSupport',
+       'StreamingTV', 'StreamingMovies', 'Contract', 'PaperlessBilling',
+       'PaymentMethod', 'Churn']].apply(le.fit_transform)
+d9.drop('customerID', inplace=True, axis=1)
+d9
+d9_train = d9[0:3]
+d9_test = d9[3:]
+d9_train
+d9_test

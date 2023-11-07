@@ -1,0 +1,56 @@
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+import plotly.express as px
+df = pd.read_csv(r"C:\Users\Gaju\Desktop\Aditee\New\BE AIDS DATASETS\Data Modelling and Visualization\Assignment 11\AirQuality.csv")
+df.isna().sum()
+df.shape
+df.columns
+df.dtypes
+df
+df['Date'] = pd.to_datetime(df['Date'], dayfirst=True, errors='coerce')
+df = df.sort_values('Date', ascending=True)
+df_m = df[['Date', 'AQI']]
+df_m.index = df_m['Date']
+df_m = df_m.resample('M').agg({'AQI': np.mean})
+df_m
+fig = px.line(df_m, x=df_m.index, y="AQI", title='AQI trend over years resampled monthly')
+fig.show()
+df_p_m = df[['Date', 'PM2.5', 'PM10', 'NO', 'NO2', 'NOx', 'NH3', 'CO', 'SO2',
+       'O3', 'Benzene', 'Toluene', 'Xylene']]
+df_p_m = df_p_m.set_index('Date')
+
+df_p_m = df_p_m.resample('M').agg({'PM2.5': np.mean, 'PM10': np.mean, 'NO': np.mean, 'NO2': np.mean, 'NOx': np.mean, 'NH3': np.mean, 'CO': np.mean, 'SO2': np.mean})
+
+fig = px.line(df_p_m, x=df_p_m.index, y=df_p_m.CO, title='Air Quality Index by Month')
+fig.show()
+df_p_m = df[['Date', 'PM2.5', 'PM10', 'NO', 'NO2', 'NOx', 'NH3', 'CO', 'SO2',
+       'O3', 'Benzene', 'Toluene', 'Xylene']]
+df_p_m = df_p_m.set_index('Date')
+
+df_p_m = df_p_m.resample('M').agg({'PM2.5': np.mean, 'PM10': np.mean, 'NO': np.mean, 'NO2': np.mean, 'NOx': np.mean, 'NH3': np.mean, 'CO': np.mean, 'SO2': np.mean})
+
+fig = px.line(df_p_m, x=df_p_m.index, y=df_p_m.columns, title='Air Quality Index by Month')
+fig.show()
+aqi_city = df.groupby('City').agg({'AQI': np.mean})
+fig = px.bar(aqi_city, x=aqi_city.index, y='AQI', title='Air Quality Index by City')
+fig.show()
+fig, axs = plt.subplots(nrows=1, ncols=2, figsize=(16, 6))
+
+axs[0].boxplot=(df_p_m)
+axs[0].set_xticklabels(df_p_m.columns, rotation=45)
+axs[0].set_title('Box Plot')
+
+axs[1].violinplot(df_p_m)
+axs[1].set_xticklabels(df_p_m.columns, rotation=45)
+axs[1].set_title('Violin Plot')
+
+plt.show()
+df_p_m_with_aqi = df[['Date', 'PM2.5', 'PM10', 'NO', 'NO2', 'NOx', 'NH3', 'CO', 'SO2','O3', 'Benzene', 'Toluene', 'Xylene', 'AQI']]
+df_p_m_with_aqi = df_p_m_with_aqi.set_index('Date')
+
+df_p_m = df_p_m_with_aqi.resample('M').agg({'AQI': np.mean,'PM2.5': np.mean, 'PM10': np.mean, 'NO': np.mean, 'NO2': np.mean, 'NOx': np.mean, 'NH3': np.mean, 'CO': np.mean, 'SO2': np.mean})
+
+fig = px.scatter(df_p_m, x=df_p_m.index, y='PM2.5', size='AQI', title='PM2.5 and AQI by Month')
+fig.show()

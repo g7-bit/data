@@ -1,0 +1,44 @@
+from statsmodels.tsa.seasonal import seasonal_decompose
+from sklearn.model_selection import train_test_split
+d = pd.read_csv(r"C:\Users\Gaju\Desktop\Aditee\New\BE AIDS DATASETS\Data Modelling and Visualization\Assignment 13\Stock_Prices.csv")
+d = d.dropna()  # Remove rows with missing values
+
+d = d[d.Name == 'AAL']
+d.Date = pd.to_datetime(d.Date, dayfirst=True)
+d.duplicated().sum()
+d.isnull().sum()
+d = d.sort_values('Date', ascending=True)
+d[d.Date == '04-05-2017']
+plt.figure(figsize=(16, 6), dpi=100)
+plt.plot(d.Date, d.Close)
+plt.show()
+window12mean = d.Close.rolling(window=12).mean()
+
+plt.figure(figsize=(16, 6))
+plt.plot(d.Date, window12mean)
+plt.show()
+numeric_data = d.select_dtypes(include=[np.number])
+sns.heatmap(numeric_data.corr(), annot=True)
+plt.show()
+result = seasonal_decompose(d['Close'], model='additive', period=30)
+result.plot()
+plt.show()
+train_data, test_data = train_test_split(d, test_size=0.2, shuffle=False)
+from statsmodels.tsa.holtwinters import ExponentialSmoothing
+
+model_es = ExponentialSmoothing(train_data['Close'], seasonal='add', seasonal_periods=12)
+results_es = model_es.fit()
+forecast_es = results_es.forecast(steps=len(test_data))
+from sklearn.metrics import mean_squared_error
+
+rmse_es = np.sqrt(mean_squared_error(test_data['Close'], forecast_es))
+print("RMSE for Exponential Smoothing Model:", rmse_es)
+plt.figure(figsize=(10, 6))
+plt.plot(train_data['Date'], train_data['Close'], label="Training Data")
+plt.plot(test_data['Date'], test_data['Close'], label="Test Data")
+plt.plot(test_data['Date'], forecast_es, label="Exponential Smoothing Forecast")
+plt.title("Stock Price Forecasting")
+plt.xlabel("Date")
+plt.ylabel("Price")
+plt.legend()
+plt.show()

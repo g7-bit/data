@@ -1,0 +1,35 @@
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score, classification_report
+from sklearn.ensemble import RandomForestClassifier
+d = pd.read_csv(r"/Users/girdhar7/Downloads/Arc/arc archive/Ir assig/practical exaammm/BE AIDS DATASETS/Machine Learning/Assignment 5/car_evaluation.csv")
+d.head()
+d.isna().sum()
+d.shape
+impurity1 = d[d.doors == '5more'].index
+d.drop(impurity1, inplace=True)
+
+impurity2 = d[d.persons == 'more'].index
+d.drop(impurity2, inplace=True)
+d.shape
+d.columns
+le = LabelEncoder()
+d[['buying', 'maint', 'lug_boot', 'safety']] = d[['buying', 'maint', 'lug_boot', 'safety']].apply(le.fit_transform)
+X = d.drop('safety', axis=1)
+y = d.safety
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+rfc = RandomForestClassifier()
+rfc.fit(X_train, y_train)
+y_pred = rfc.predict(X_test)
+rfc.score(X_test, y_test)
+classification_rep = classification_report(y_test, y_pred)
+accuracy = rfc.score(X_test, y_test)
+print("Accuracy: ",accuracy)
+print('Classification Report:')
+print(classification_rep)
+
+

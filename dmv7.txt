@@ -1,0 +1,51 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+# dmv7
+d7= pd.read_csv(r"/Users/girdhar7/Downloads/Arc/arc archive/Ir assig/practical exaammm/BE AIDS DATASETS/Data Modelling and Visualization/Assignment 7/sample_7.csv")
+d7.head()
+# 1st two row
+d71 = d7[0:2]
+
+# next two rows
+d72 = d7[3:5]
+
+# last 3 rows
+d73 = d7[5:]
+d71
+d72
+d73
+# convert d71 to json
+d71_json = d71.to_json(orient='records')
+
+with open('d71_json.json', 'w') as file:
+    file.write(d71_json)
+
+# convert d72 to excel
+d72_excel = d72.to_excel('d72_excel.xlsx',index=False)
+
+# let d73 be as it is. Now you got 3 different formats of file
+d711 = pd.read_json('d71_json.json')
+d722 = pd.read_excel('d72_excel.xlsx')
+d733 = d73
+frames = [d711, d722, d733]
+
+d7f = pd.concat(frames)
+# missing values?
+d7f.isna().sum()
+# drop null or fill artificial values
+d7f.fillna(method='ffill', inplace=True)
+d7f
+# 6. Analyze the sales data by performing descriptive statistics, aggregating data by
+# specific variables, or calculating metrics such as total sales, average order value, or
+# product category distribution.
+d7f.describe()
+d7f.groupby('Channel').agg({'Sales': pd.Series.sum})
+# Create visualizations, such as bar plots, pie charts, or box plots, to represent the sales
+# data and gain insights into sales trends, customer behavior, or product performance.
+
+sns.barplot(x=d7f['Address'], y=d7f['Sales'])
+plt.show()
+plt.pie(x=d7f['Sales'], labels=d7f['P Type'])
+plt.show()

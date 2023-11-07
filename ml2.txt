@@ -1,0 +1,150 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import Ridge
+from sklearn.linear_model import Lasso
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+
+
+
+# Load the dataset
+dataset_path = ("/Users/girdhar7/Downloads/Arc/arc archive/Ir assig/practical exaammm/BE AIDS DATASETS/Machine Learning/Assignment 2/uber.csv")
+df = pd.read_csv(dataset_path)
+
+
+
+
+df.head()
+df.isna().sum()
+df = df.dropna()
+
+
+def find_outliers_IQR(column):
+
+    # Convert column to numpy array for easier manipulation
+    data = column.values
+
+    # Calculate the first and third quartiles
+    Q1 = np.percentile(data, 25)
+    Q3 = np.percentile(data, 75)
+
+    # Calculate the interquartile range (IQR)
+    IQR = Q3 - Q1
+
+    # Define the lower and upper bounds for outliers
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 + 1.5 * IQR
+
+    # Find outliers
+    outliers = [value for value in data if value < lower_bound or value > upper_bound]
+
+    # Count, maximum, and minimum outliers
+    outliers_count = len(outliers)
+    max_outlier = max(outliers, default=None)
+    min_outlier = min(outliers, default=None)
+
+    return outliers_count, max_outlier, min_outlier
+
+
+outliers_count, max_outlier, min_outlier = find_outliers_IQR(df['fare_amount'])
+
+
+
+
+print('Number of outliers:', outliers_count)
+print('Max outlier value:', max_outlier)
+print('Min outlier value:', min_outlier)
+
+
+
+
+# Exclude non-numeric columns
+numeric_columns = df.select_dtypes(include=[np.number])
+
+
+
+# Generate the correlation matrix for numeric columns
+correlation_matrix = numeric_columns.corr()
+
+
+
+# Plot the heatmap
+plt.figure(figsize=(6, 6))
+sns.heatmap(correlation_matrix, cmap='plasma', annot=True, fmt='.2f')
+plt.show()
+
+
+
+
+df.dtypes
+
+
+
+#drop unnecesary columns
+df = df.drop(['key', 'Unnamed: 0'], axis=1)
+
+
+
+
+#string to datetime
+df['pickup_datetime'] = pd.to_datetime(df['pickup_datetime'])
+
+
+
+
+data1 = df.drop(['fare_amount', 'pickup_datetime'], axis=1)
+
+
+
+scaler = StandardScaler()
+data = scaler.fit_transform(data1)
+data = pd.DataFrame(data, columns=data1.columns)
+
+
+
+
+X = data
+y = df.fare_amount
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+
+
+reg = LinearRegression().fit(X_train, y_train)
+y_preds = reg.predict(X_test)
+print(f'model score (rmse): {reg.score(X_test, y_test)}\n')
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+print(f'mae: {mean_absolute_error(y_test, y_preds)}')
+print(f'mse: {mean_squared_error(y_test, y_preds)}')
+print(f'rmse: {np.sqrt(mean_squared_error(y_test, y_preds))}')
+print(f'r2: {(r2_score(y_test, y_preds))}')
+
+
+
+
+
+rr = Ridge(alpha=0.01)
+rr.fit(X_train, y_train)
+y_preds = rr.predict(X_test)
+print(f'model score (rmse): {rr.score(X_test, y_test)}\n')
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+print(f'mae: {mean_absolute_error(y_test, y_preds)}')
+print(f'mse: {mean_squared_error(y_test, y_preds)}')
+print(f'rmse: {np.sqrt(mean_squared_error(y_test, y_preds))}')
+print(f'r2: {(r2_score(y_test, y_preds))}')
+
+
+
+
+lr = Lasso(alpha=0.01)
+lr.fit(X_train, y_train)
+y_preds = lr.predict(X_test)
+print(f'model score (rmse): {lr.score(X_test, y_test)}\n')
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+print(f'mae: {mean_absolute_error(y_test, y_preds)}')
+print(f'mse: {mean_squared_error(y_test, y_preds)}')
+print(f'rmse: {np.sqrt(mean_squared_error(y_test, y_preds))}')
+print(f'r2: {(r2_score(y_test, y_preds))}')

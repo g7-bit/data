@@ -1,0 +1,38 @@
+import pandas as pd
+import os
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
+data_path = r"C:\Users\Gaju\Desktop\Aditee\New\BE AIDS DATASETS\Machine Learning\Assignment 1\Wine(1).csv"
+df = pd.read_csv(data_path)
+df.head()
+#counts the sum of missing values in each coloumn
+df.isna().sum()
+df.columns
+X = df.drop('Customer_Segment', axis=1)    #dropping the target variable
+X.info()
+scaler =StandardScaler()
+
+features =scaler.fit(df)
+features =features.transform(df)
+
+
+scaled_df =pd.DataFrame(features,columns=df.columns)
+
+scaled_df.head(2)
+#converting DataFrame with scaled features into a NumPy array, which can be directly used as input
+X=scaled_df.values
+pca=PCA(n_components=2)
+
+reduced_X=pd.DataFrame(data=pca.fit_transform(X),columns=['PCA1','PCA2'])
+reduced_X.head()
+#plt.scatter(x=reduced_X['PCA1'], y=reduced_X["PCA2"], c=df['Customer_Segment'])
+plt.scatter(x=reduced_X['PCA1'], y=reduced_X['PCA2'], c=df['Customer_Segment'], label='Customer Segment')
+plt.title('Scatter Plot of PCA1 vs. PCA2')
+plt.xlabel('PCA1')
+plt.ylabel('PCA2')
+plt.legend()
+plt.show()

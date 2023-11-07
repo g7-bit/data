@@ -1,0 +1,85 @@
+import matplotlib.pyplot as plt
+from sklearn import datasets
+from sklearn.model_selection import train_test_split
+from sklearn import svm
+from sklearn.metrics import accuracy_score
+
+
+
+#Load the Dataset
+digits = datasets.load_digits()
+X = digits.images
+y = digits.target
+
+
+
+
+#preprocessing of dataset
+n_samples = len(X)
+X = X.reshape((n_samples, -1))  #Flattenning of images (8x8 pixel)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, random_state=0)
+
+
+
+
+clf = svm.SVC(gamma=0.001)  #broader decision boundary to reduce overfitting
+clf.fit(X_train, y_train)
+
+
+y_pred = clf.predict(X_test)
+
+
+
+# Print the index values of all the images
+for i in range(len(y_test)):
+    print(f"Index: {i}, Actual: {y_test[i]}, Predicted: {y_pred[i]}")
+
+
+
+
+import matplotlib.pyplot as plt
+for i in range(10):
+    plt.subplot(2, 5, i + 1)
+    plt.imshow(X_test[i].reshape(8, 8), cmap=plt.cm.gray)
+    plt.title(f"Actual: {y_test[i]}\nPredicted: {y_pred[i]}")
+    plt.axis('off')
+plt.show()
+
+
+
+accuracy = accuracy_score(y_test, y_pred)
+print(f"Accuracy: {accuracy}")
+
+
+
+len(X_test)
+
+
+
+# Function to predict a user-provided digit based on index and plot the image
+def predict_user_digit():
+    user_input = input("Enter the index of an image: ")
+    try:
+        user_index = int(user_input)
+
+        if 0 <= user_index < len(X_test):
+            user_data = X_test[user_index]
+            user_image = user_data.reshape(8, 8)
+            
+            # Plotting the image
+            plt.imshow(user_image, cmap=plt.cm.gray)
+            plt.title(f"Index: {user_index}, Predicted: {clf.predict([user_data])[0]}")
+            plt.axis('off')
+            plt.show()
+        else:
+            print("Invalid index. Please enter a valid index.")
+    except ValueError:
+        print("Invalid input. Please enter a valid integer.")
+
+while True:
+    predict_user_digit()
+    break  # To exit after one prediction, you can remove this line to keep predicting.
+
+
+
+
