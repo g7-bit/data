@@ -99,3 +99,7 @@ print("\nChurn Value Counts:\n", churn_value_counts)
 # Generate a classification report
 class_report = classification_report(y_test, y_pred)
 print("\nClassification Report:\n", class_report)
+
+
+
+
