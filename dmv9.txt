@@ -1,34 +1,64 @@
-d9 = pd.read_csv('Assignment 9/tele_com.csv')
-d9.head()
-d9.isna().sum()
-d9.shape
-d9.dropna(inplace=True)
-d9.duplicated().sum()
-d9.dtypes
-up = np.quantile(d9['TotalCharges'], 0.75)
-dn = np.quantile(d9['TotalCharges'], 0.25)
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import LabelEncoder
+1. Import the "Telecom_Customer_Churn.csv" dataset.
+dataset_path = "/Users/girdhar7/Downloads/Arc/arc archive/Ir assig/practical exaammm/BE AIDS DATASETS/Data Modelling and Visualization/Assignment 9/tele_com.csv"
+df = pd.read_csv(dataset_path)
+2. Explore the dataset to understand its structure and content.
+ print(df.info())
+3. Handle missing values in the dataset, deciding on an appropriate strategy.
+print("\nMissing Values:")
+print(df.isnull().sum())
+df['MultipleLines'] = df['MultipleLines'].fillna('Not known').str.lower()
+print(df)
+5. Check for inconsistent data, such as inconsistent formatting or spelling variations,
+and standardize it.
+df['InternetService'] = df['InternetService'].replace('Fiber opticalal', 'Fiber Optic')
+print(df)
+6. Convert columns to the correct data types as needed
+df['MonthlyCharges'] = df['MonthlyCharges'].astype(int)
+df['TotalCharges'] = df['TotalCharges'].astype(int)
+print(df.info())
+7. Identify and handle outliers in the data.
+import numpy as np
+# Select numerical columns for Z-Score calculation
+numerical_cols = ['tenure', 'MonthlyCharges', 'TotalCharges']
 
-d91 = d9[ (d9['TotalCharges'] < dn) | (d9['TotalCharges'] > up) ]
-d91
-# outliers index
-ol_ind = d91.index
-# droped outliers indexes
-d9.drop(ol_ind, inplace=True)
-from sklearn.preprocessing import StandardScaler, LabelEncoder
-s = StandardScaler()
-le = LabelEncoder()
-d9.head()
-d9.columns
-d9[[ 'gender', 'Partner', 'Dependents', 'PhoneService', 'MultipleLines', 'InternetService',
-       'OnlineSecurity', 'OnlineBackup', 'DeviceProtection', 'TechSupport',
-       'StreamingTV', 'StreamingMovies', 'Contract', 'PaperlessBilling',
-       'PaymentMethod', 'Churn']] = d9[[ 'gender', 'Partner', 'Dependents', 'PhoneService', 'MultipleLines', 'InternetService',
-       'OnlineSecurity', 'OnlineBackup', 'DeviceProtection', 'TechSupport',
-       'StreamingTV', 'StreamingMovies', 'Contract', 'PaperlessBilling',
-       'PaymentMethod', 'Churn']].apply(le.fit_transform)
-d9.drop('customerID', inplace=True, axis=1)
-d9
-d9_train = d9[0:3]
-d9_test = d9[3:]
-d9_train
-d9_test
+# Calculate Z-Scores for selected columns
+z_scores = np.abs((df[numerical_cols] - df[numerical_cols].mean()) / df[numerical_cols].std())
+
+# Define a threshold for outlier detection (e.g., Z-Score greater than 3)
+threshold = 3
+
+# Identify and print outliers
+outliers = z_scores > threshold
+print("Outliers in each column:")
+print(outliers)
+
+# Count outliers in each column
+outlier_counts = outliers.sum()
+print("\nNumber of outliers in each column:")
+print(outlier_counts)
+9.Normalize or scale the data if necessary.
+numerical_features = ['tenure', 'MonthlyCharges', 'TotalCharges']
+scaler = StandardScaler()
+
+df[numerical_features] = scaler.fit_transform(df[numerical_features])
+
+print(df.head())
+8.Perform feature engineering, creating new features that may be relevant to
+predicting customer churn
+df['Contract_Renewal'] = df['Contract'].apply(lambda x: 'Yes' if x in ['One year', 'Two year'] else 'No')
+print(df['Contract_Renewal'])
+10. Split the dataset into training and testing sets for further analysis.
+X = df.drop(columns=['Churn'])
+y = df['Churn']
+
+# Split the dataset into training and testing sets (e.g., 70% training, 30% testing)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+# Print the shapes of the training and testing sets to verify the split
+print("Training set shape - X:", X_train.shape, "y:", y_train.shape)
+print("Testing set shape - X:", X_test.shape, "y:", y_test.shape)
+
